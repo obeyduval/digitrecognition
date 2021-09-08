@@ -2,6 +2,8 @@
 
 # Pytorch Libraries and MNIST Database
 
+import os
+os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 import numpy as np
 import torch
 import torchvision
@@ -24,10 +26,12 @@ valset = datasets.MNIST('PATH_TO_STORE_TESTSET', download=True, train=False, tra
 trainloader = torch.utils.data.DataLoader(trainset, batch_size=64, shuffle=True)
 valloader = torch.utils.data.DataLoader(valset, batch_size=64, shuffle=True)
 
-# images and labels
+# images and labels (pull in one batch at a time)
 dataiter = iter(trainloader)
 images, labels = dataiter.next()
 print(images.shape)
 print(labels.shape)
 
-
+# display one image
+# plt.imshow(images[0].numpy().squeeze(), cmap='gray_r')
+# plt.show()
