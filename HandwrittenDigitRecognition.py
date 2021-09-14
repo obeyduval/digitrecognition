@@ -1,4 +1,5 @@
 # Handwritten Digit Recognition Using PyTorch
+# ** need to save model
 
 # Pytorch Libraries and MNIST Database
 
@@ -37,13 +38,13 @@ print(labels.shape)
 # plt.show()
 
 # display multiple images
-# figure = plt.figure()
-# num_of_images = 60
-# for index in range(1, num_of_images + 1):
-#     plt.subplot(6, 10, index)
-#     plt.axis('off')
-#     plt.imshow(images[index].numpy().squeeze(), cmap='gray_r')
-# plt.show()
+figure = plt.figure()
+num_of_images = 60
+for index in range(1, num_of_images + 1):
+    plt.subplot(6, 10, index)
+    plt.axis('off')
+    plt.imshow(images[index].numpy().squeeze(), cmap='gray_r')
+plt.show()
 
 # NETWORK IS INPUT LAYER, 2 HIDDEN LAYERS, and OUTPUT LAYER
 
@@ -102,7 +103,7 @@ for e in range(epochs):
         print("Epoch {} - Training loss: {}".format(e, running_loss / len(trainloader)))
 print("\nTraining Time (in minutes) =", (time() - time0) / 60)
 
-# validation process
+# testing process
 correct_count, all_count = 0, 0
 for images, labels in valloader:
     for i in range(len(labels)):
@@ -122,4 +123,4 @@ print("Number Of Images Tested =", all_count)
 print("\nModel Accuracy =", (correct_count / all_count))
 
 # save model
-# torch.save(model, './my_mnist_model.pt')
+torch.save(model.state_dict(), './my_mnist_model.pt')
