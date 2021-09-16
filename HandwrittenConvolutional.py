@@ -5,13 +5,15 @@
 
 import os
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
-import numpy as np
+from time import time
+from torchvision import datasets, transforms
 import torch
 import torchvision
 import matplotlib.pyplot as plt
-from time import time
-from torchvision import datasets, transforms
-from torch import nn, optim
+import numpy as np
+import torch.nn as nn
+import torch.nn.functional as F
+import torch.optim as optim
 
 # toTensor - converts the image into numbers
 # normalize - normalize tensor with a mean and stdv
@@ -27,100 +29,61 @@ valset = datasets.MNIST('PATH_TO_STORE_TESTSET', download=True, train=False, tra
 trainloader = torch.utils.data.DataLoader(trainset, batch_size=64, shuffle=True)
 valloader = torch.utils.data.DataLoader(valset, batch_size=64, shuffle=True)
 
-# images and labels (pull in one batch at a time)
-dataiter = iter(trainloader)
-images, labels = dataiter.next()
-print(images.shape)
-print(labels.shape)
+class Net(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.conv1 = nn.Conv2d(1,16,5,1,2)
+        self.pool = nn.MaxPool2d(2)
+        self.conv2 = nn.Conv2d(16,32,5,1,2)
+        #self.fc1 = nn.Linear(16 * 5 * 5, 120)
+       # self.fc2 = nn.Linear(120, 84)
+        self.fc3 = nn.Linear(32*7*7, 10)
 
-# display one image
-# plt.imshow(images[0].numpy().squeeze(), cmap='gray_r')
-# plt.show()
+    def forward(self, x):
+        x = self.pool(F.relu(self.conv1(x)))
+        x = self.pool(F.relu(self.conv2(x)))
+        x = torch.flatten(x, 1)  # flatten all dimensions except batch
+        x = x.view(x.size(0),-1)
+#        x = F.relu(self.fc1(x))
+ #       x = F.relu(self.fc2(x))
+        x = self.fc3(x)
+        return x
 
-# display multiple images
-figure = plt.figure()
-num_of_images = 60
-for index in range(1, num_of_images + 1):
-    plt.subplot(6, 10, index)
-    plt.axis('off')
-    plt.imshow(images[index].numpy().squeeze(), cmap='gray_r')
-plt.show()
 
-# NETWORK IS INPUT LAYER, 2 HIDDEN LAYERS, and OUTPUT LAYER
+net = Net()
 
-input_size = 784  # input layer
-hidden_sizes = [128, 64]  # hidden layers
-output_size = 10  # output layer
 
-# set up model
-model = nn.Sequential(nn.Linear(input_size, hidden_sizes[0]),
-                      nn.ReLU(),
-                      nn.Linear(hidden_sizes[0], hidden_sizes[1]),
-                      nn.ReLU(),
-                      nn.Linear(hidden_sizes[1], output_size),
-                      nn.LogSoftmax(dim=1))
-print(model)
+if __name__ == '__main__':
 
-# criterion is the negative log likelihood loss
-criterion = nn.NLLLoss()
-images, labels = next(iter(trainloader))
-images = images.view(images.shape[0], -1)
+    # cross entropy loss (Classification Cross-Entropy loss and SGD with momentum)
+    criterion = nn.CrossEntropyLoss()
+    optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
 
-logps = model(images)  # log probabilities
-loss = criterion(logps, labels)  # calculate the NLL loss
+    # train network (loop over our data iterator, and feed the inputs to the network and optimize)
 
-# weights before backward prop
-print('Before backward pass: \n', model[0].weight.grad)
-loss.backward()
+    for epoch in range(2):  # loop over the dataset multiple times
 
-# weights after back prop
-print('After backward pass: \n', model[0].weight.grad)
+        running_loss = 0.0
+        for i, data in enumerate(trainloader, 0):
+            # get the inputs; data is a list of [inputs, labels]
+            inputs, labels = data
+            print(i)
+            # zero the parameter gradients
+            optimizer.zero_grad()
 
-# training and updating weights
-optimizer = optim.SGD(model.parameters(), lr=0.003, momentum=0.9)
-time0 = time()
-epochs = 15
-for e in range(epochs):
-    running_loss = 0
-    for images, labels in trainloader:
-        # Flatten MNIST images into a 784 long vector
-        images = images.view(images.shape[0], -1)
+            # forward + backward + optimize
+            outputs = net(inputs)
+            loss = criterion(outputs, labels)
+            loss.backward()
+            optimizer.step()
 
-        # Training pass
-        optimizer.zero_grad()
+            # print statistics
+            running_loss += loss.item()
+            if i % 2000 == 1999:    # print every 2000 mini-batches
+                print('[%d, %5d] loss: %.3f' %
+                      (epoch + 1, i + 1, running_loss / 2000))
+                running_loss = 0.0
 
-        output = model(images)
-        loss = criterion(output, labels)
+    print('Finished Training')
 
-        # This is where the model learns by backpropagating
-        loss.backward()
-
-        # And optimizes its weights here
-        optimizer.step()
-
-        running_loss += loss.item()
-    else:
-        print("Epoch {} - Training loss: {}".format(e, running_loss / len(trainloader)))
-print("\nTraining Time (in minutes) =", (time() - time0) / 60)
-
-# testing process
-correct_count, all_count = 0, 0
-for images, labels in valloader:
-    for i in range(len(labels)):
-        img = images[i].view(1, 784)
-        with torch.no_grad():
-            logps = model(img)
-
-        ps = torch.exp(logps)
-        probab = list(ps.numpy()[0])
-        pred_label = probab.index(max(probab))
-        true_label = labels.numpy()[i]
-        if (true_label == pred_label):
-            correct_count += 1
-        all_count += 1
-
-print("Number Of Images Tested =", all_count)
-print("\nModel Accuracy =", (correct_count / all_count))
-
-# save model
-torch.save(model.state_dict(), './my_mnist_covolutional_model.pt')
+torch.save(net.state_dict(), './my_mnist_covolutional_model.pt')
