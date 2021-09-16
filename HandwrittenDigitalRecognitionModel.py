@@ -17,6 +17,19 @@ valloader = torch.utils.data.DataLoader(valset, batch_size=64, shuffle=True)
 
 # NETWORK IS INPUT LAYER, 2 HIDDEN LAYERS, and OUTPUT LAYER
 
+# images and labels (pull in one batch at a time)
+# dataiter = iter(valloader)
+# images, labels = dataiter.next()
+
+# display multiple images
+# figure = plt.figure()
+# num_of_images = 60
+# for index in range(1, num_of_images + 1):
+#     plt.subplot(6, 10, index)
+#     plt.axis('off')
+#     plt.imshow(images[index].numpy().squeeze(), cmap='gray_r')
+# plt.show()
+
 input_size = 784  # input layer
 hidden_sizes = [128, 64]  # hidden layers
 output_size = 10  # output layer
@@ -47,15 +60,16 @@ for images, labels in valloader:
         true_label = labels.numpy()[i]
         if (true_label == pred_label):
             correct_count += 1
-        else:
-            badimages.append(img)
         all_count += 1
 
 print("Number Of Images Tested =", all_count)
 print("\nModel Accuracy =", (correct_count / all_count))
 
-# for index in range(1, 10):
-#     plt.subplot(2, 5, index)
+# # display multiple images
+# figure = plt.figure()
+# num_of_images = 60
+# for index in range(1, num_of_images + 1):
+#     plt.subplot(6, 10, index)
 #     plt.axis('off')
 #     plt.imshow(badimages[index].numpy().squeeze(), cmap='gray_r')
 # plt.show()

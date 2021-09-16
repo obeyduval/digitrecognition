@@ -64,14 +64,14 @@ net = Net()
 
 
 if __name__ == '__main__':
-    #     # get some random training images
-    #     dataiter = iter(trainloader)
-    #     images, labels = dataiter.next()
-    #
-    #     # show images
-    #     imshow(torchvision.utils.make_grid(images))
-    #     # print labels
-    #     print(' '.join('%5s' % classes[labels[j]] for j in range(batch_size)))
+    # get some random training images
+    dataiter = iter(trainloader)
+    images, labels = dataiter.next()
+
+    # show images
+    imshow(torchvision.utils.make_grid(images))
+    # print labels
+    print(' '.join('%5s' % classes[labels[j]] for j in range(batch_size)))
 
     # cross entropy loss (Classification Cross-Entropy loss and SGD with momentum)
     criterion = nn.CrossEntropyLoss()
@@ -105,6 +105,6 @@ if __name__ == '__main__':
     print('Finished Training')
 
     # save the model
-    PATH = './cifar_net.pth'
-    torch.save(net.state_dict(), PATH)
+    # PATH = './cifar_net.pth'
+    # torch.save(net.state_dict(), PATH)
 
