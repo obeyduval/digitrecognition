@@ -4,6 +4,8 @@ from torchvision import datasets, transforms
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import matplotlib.pyplot as plt
+import numpy as np
 
 transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.5,), (0.5,)), ])
 
@@ -41,6 +43,8 @@ if __name__ == '__main__':
     correct_pred = {classname: 0 for classname in classes}
     total_pred = {classname: 0 for classname in classes}
 
+    badimages = []
+
     # again no gradients needed
     with torch.no_grad():
         for data in testloader:
@@ -48,9 +52,12 @@ if __name__ == '__main__':
             outputs = net(images)
             _, predictions = torch.max(outputs, 1)
             # collect the correct predictions for each class
-            for label, prediction in zip(labels, predictions):
+            for i, (label, prediction) in enumerate(zip(labels, predictions)):
                 if label == prediction:
                     correct_pred[classes[label]] += 1
+                else:
+                    # show bad images
+                    badimages.append(images[i])
                 total_pred[classes[label]] += 1
 
     # print accuracy for each class
@@ -74,3 +81,21 @@ if __name__ == '__main__':
 
     print('Accuracy of the network on the 10000 test images: %d %%' % (
             100 * correct / total))
+
+
+def imshow(img):
+    img = img / 2 + 0.5     # unnormalize
+    npimg = img.numpy()
+    plt.imshow(np.transpose(npimg, (1, 2, 0)))
+    plt.show()
+
+# imshow(badimages[0])
+
+# display multiple images
+figure = plt.figure()
+num_of_images = 60
+for index in range(1, num_of_images + 1):
+    plt.subplot(6, 10, index)
+    plt.axis('off')
+    plt.imshow(badimages[index].numpy().squeeze(), cmap='gray_r')
+plt.show()
