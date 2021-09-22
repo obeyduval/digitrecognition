@@ -52,6 +52,7 @@ class Net(nn.Module):
 
 net = Net()
 
+errorplot = []
 
 if __name__ == '__main__':
 
@@ -61,13 +62,12 @@ if __name__ == '__main__':
 
     # train network (loop over our data iterator, and feed the inputs to the network and optimize)
 
-    for epoch in range(2):  # loop over the dataset multiple times
+    for epoch in range(1):  # loop over the dataset multiple times
 
         running_loss = 0.0
         for i, data in enumerate(trainloader, 0):
             # get the inputs; data is a list of [inputs, labels]
             inputs, labels = data
-            print(i)
             # zero the parameter gradients
             optimizer.zero_grad()
 
@@ -79,11 +79,18 @@ if __name__ == '__main__':
 
             # print statistics
             running_loss += loss.item()
-            if i % 2000 == 1999:    # print every 2000 mini-batches
+            if i % 100 == 99:    # print every 2000 mini-batches
                 print('[%d, %5d] loss: %.3f' %
-                      (epoch + 1, i + 1, running_loss / 2000))
+                      (epoch + 1, i + 1, running_loss / 100))
+                # errorplot.append(running_loss / 100)
                 running_loss = 0.0
+            errorplot.append(loss.item())
 
     print('Finished Training')
+    plt.ylabel("Loss")
+    plt.xlabel("Epochs")
+    plt.title("Loss per Epoch - Handwriting Convolutional Network")
+    plt.plot(errorplot)
+    plt.show()
 
-torch.save(net.state_dict(), './my_mnist_covolutional_model.pt')
+# torch.save(net.state_dict(), './my_mnist_covolutional_model.pt')

@@ -79,6 +79,7 @@ if __name__ == '__main__':
 
     # train network (loop over our data iterator, and feed the inputs to the network and optimize)
 
+    errorplot = []
     for epoch in range(2):  # loop over the dataset multiple times
 
         running_loss = 0.0
@@ -100,9 +101,13 @@ if __name__ == '__main__':
             if i % 2000 == 1999:    # print every 2000 mini-batches
                 print('[%d, %5d] loss: %.3f' %
                       (epoch + 1, i + 1, running_loss / 2000))
+                errorplot.append(running_loss / 2000)
                 running_loss = 0.0
 
     print('Finished Training')
+
+    plt.plot(errorplot)
+    plt.show()
 
     # save the model
     # PATH = './cifar_net.pth'

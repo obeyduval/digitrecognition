@@ -56,17 +56,11 @@ net.load_state_dict(torch.load('C:/Users/C22Timothy.Jackson/Downloads/digitrecog
 
 if __name__ == '__main__':
 
-    # # test network on data
-    # dataiter = iter(testloader)
-    # images, labels = dataiter.next()
-    #
-    # # print images
-    # print('GroundTruth: ', ' '.join('%5s' % classes[labels[j]] for j in range(4)))
-    # imshow(torchvision.utils.make_grid(images))
-
     # prepare to count predictions for each class
     correct_pred = {classname: 0 for classname in classes}
     total_pred = {classname: 0 for classname in classes}
+
+    badimages = []
 
     # again no gradients needed
     with torch.no_grad():
@@ -75,9 +69,12 @@ if __name__ == '__main__':
             outputs = net(images)
             _, predictions = torch.max(outputs, 1)
             # collect the correct predictions for each class
-            for label, prediction in zip(labels, predictions):
+            for i, (label, prediction) in enumerate(zip(labels, predictions)):
                 if label == prediction:
                     correct_pred[classes[label]] += 1
+                else:
+                    # show bad images
+                    badimages.append(images[i])
                 total_pred[classes[label]] += 1
 
     # print accuracy for each class
@@ -101,3 +98,14 @@ if __name__ == '__main__':
 
     print('Accuracy of the network on the 10000 test images: %d %%' % (
             100 * correct / total))
+
+    # display multiple images
+    figure = plt.figure()
+    num_of_images = 15
+    for index in range(1, num_of_images + 1):
+        plt.subplot(3, 5, index)
+        plt.axis('off')
+        images = badimages[index] / 2 + 0.5  # unnormalize
+        plt.imshow(images.permute(1, 2, 0), cmap='gray_r')
+    plt.show()
+

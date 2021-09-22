@@ -37,14 +37,14 @@ print(labels.shape)
 # plt.imshow(images[0].numpy().squeeze(), cmap='gray_r')
 # plt.show()
 
-# display multiple images
-figure = plt.figure()
-num_of_images = 60
-for index in range(1, num_of_images + 1):
-    plt.subplot(6, 10, index)
-    plt.axis('off')
-    plt.imshow(images[index].numpy().squeeze(), cmap='gray_r')
-plt.show()
+# # display multiple images
+# figure = plt.figure()
+# num_of_images = 60
+# for index in range(1, num_of_images + 1):
+#     plt.subplot(6, 10, index)
+#     plt.axis('off')
+#     plt.imshow(images[index].numpy().squeeze(), cmap='gray_r')
+# plt.show()
 
 # NETWORK IS INPUT LAYER, 2 HIDDEN LAYERS, and OUTPUT LAYER
 
@@ -80,6 +80,7 @@ print('After backward pass: \n', model[0].weight.grad)
 optimizer = optim.SGD(model.parameters(), lr=0.003, momentum=0.9)
 time0 = time()
 epochs = 15
+errorplot = []
 for e in range(epochs):
     running_loss = 0
     for images, labels in trainloader:
@@ -101,6 +102,7 @@ for e in range(epochs):
         running_loss += loss.item()
     else:
         print("Epoch {} - Training loss: {}".format(e, running_loss / len(trainloader)))
+        errorplot.append(running_loss/len(trainloader))
 print("\nTraining Time (in minutes) =", (time() - time0) / 60)
 
 # testing process
@@ -122,5 +124,8 @@ for images, labels in valloader:
 print("Number Of Images Tested =", all_count)
 print("\nModel Accuracy =", (correct_count / all_count))
 
+plt.plot(errorplot)
+plt.show()
+
 # save model
-torch.save(model.state_dict(), './my_mnist_model.pt')
+# torch.save(model.state_dict(), './my_mnist_model.pt')

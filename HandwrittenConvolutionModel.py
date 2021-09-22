@@ -82,20 +82,12 @@ if __name__ == '__main__':
     print('Accuracy of the network on the 10000 test images: %d %%' % (
             100 * correct / total))
 
-
-def imshow(img):
-    img = img / 2 + 0.5     # unnormalize
-    npimg = img.numpy()
-    plt.imshow(np.transpose(npimg, (1, 2, 0)))
+    # display multiple images
+    figure = plt.figure()
+    num_of_images = 60
+    for index in range(1, num_of_images + 1):
+        plt.subplot(6, 10, index)
+        plt.axis('off')
+        images = badimages[index] / 2 + 0.5  # unnormalize
+        plt.imshow(images.permute(1, 2, 0), cmap='gray_r')
     plt.show()
-
-# imshow(badimages[0])
-
-# display multiple images
-figure = plt.figure()
-num_of_images = 60
-for index in range(1, num_of_images + 1):
-    plt.subplot(6, 10, index)
-    plt.axis('off')
-    plt.imshow(badimages[index].numpy().squeeze(), cmap='gray_r')
-plt.show()
